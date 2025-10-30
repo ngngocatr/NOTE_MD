@@ -94,3 +94,5 @@ Chỉnh để đọc file `/home/carlos/secret`
  
 ---
 ![2025-10-29-17-37-05](../images/2025-10-29-17-37-05.png)
+
+## LAB 8: 
