@@ -95,4 +95,110 @@ Chỉnh để đọc file `/home/carlos/secret`
 ---
 ![2025-10-29-17-37-05](../images/2025-10-29-17-37-05.png)
 
-## LAB 8: 
+---
+## LAB 5: Web shell upload via path traversal
+__Tải web shell lên bằng cách lợi dụng lỗ hổng path traversal__
+
+![2025-10-30-22-31-57](../images/2025-10-30-22-31-57.png)   
+>>Phòng thí nghiệm này chứa một chức năng tải lên hình ảnh dễ bị tấn công. Máy chủ được cấu hình để ngăn chặn việc thực thi các tệp do người dùng cung cấp, nhưng hạn chế này có thể bị bỏ qua bằng cách khai thác lỗ hổng thứ cấp .
+
+>>Để giải bài tập, hãy tải lên một web shell PHP cơ bản và sử dụng nó để trích xuất nội dung của tệp `/home/carlos/secret`. Gửi bí mật này bằng nút được cung cấp trong banner bài tập.
+
+>>Bạn có thể đăng nhập vào tài khoản của mình bằng thông tin đăng nhập sau:`wiener:peter`
+
+![2025-10-30-22-16-10](../images/2025-10-30-22-16-10.png)
+---
+ 
+Gửi một file `php` lên thì `200 OK` ngay 
+ 
+---
+![2025-10-30-22-18-34](../images/2025-10-30-22-18-34.png)
+---
+ 
+Nhưng khi vào file thì thấy chỉ hiển thị nội dung của file
+--> Trong thư mục chứa ảnh không có quyền chạy `php`
+--> Phải upload file vào một thư mục có quyền chạy `php`
+
+---
+![2025-10-30-22-27-53](../images/2025-10-30-22-27-53.png)
+---
+ 
+Thử upload bằng `Path Traversal` nhưng server có vẻ như `trim` đi `../`
+
+---
+![2025-10-30-22-29-05](../images/2025-10-30-22-29-05.png)
+---
+ 
+Mã hóa `../` --> Đã upload được vào thư mục `/file`
+
+---
+![2025-10-30-22-29-26](../images/2025-10-30-22-29-26.png)
+---
+ 
+Thử truy cập vào file và thấy trả về nội dung của `/etc/passwd`
+ 
+---
+![2025-10-30-22-30-21](../images/2025-10-30-22-30-21.png)
+---
+ 
+Thay đổi nội dung của `pwn.php` và lấy nội dung từ `/home/carlos/secret`
+ 
+---
+![2025-10-30-22-30-48](../images/2025-10-30-22-30-48.png)
+
+## LAB9 9:  Remote code execution via polyglot web shell upload
+
+__Thực thi mã từ xa bằng cách tải lên web shell đa hình__
+
+![2025-10-30-22-41-50](../images/2025-10-30-22-41-50.png)
+---
+ 
+>>Phòng thí nghiệm này chứa một hàm tải lên hình ảnh dễ bị tấn công. Mặc dù hàm này kiểm tra nội dung của tệp để xác minh đó là hình ảnh thật, nhưng vẫn có thể tải lên và thực thi mã phía máy chủ.
+
+>>Để giải bài lab, hãy tải lên một web shell PHP cơ bản, sau đó sử dụng nó để trích xuất nội dung của tệp `/home/carlos/secret`. Gửi bí mật này bằng nút được cung cấp trong banner bài lab.
+
+>>Bạn có thể đăng nhập vào tài khoản của mình bằng thông tin đăng nhập sau:`wiener:peter`
+ 
+---
+
+![2025-10-30-22-44-21](../images/2025-10-30-22-44-21.png)
+---
+ 
+Gửi một file `webshell` lên"\
+Nhưng bị từ chối
+ 
+---
+![2025-10-30-22-45-03](../images/2025-10-30-22-45-03.png)
+---
+ 
+Gửi với định dạng `.php.jpg` xem server có cho phép xử lí cả 2 loại không\
+Nhưng vẫn bị từ chối
+-->Vấn đề không ở tên file mà ở nội dung của file
+ 
+---
+![2025-10-30-22-45-57](../images/2025-10-30-22-45-57.png)
+---
+ 
+Gửi 1 file với nội dung của file ảnh nhưng tên lại có định dạng `php`
+>>`200 OK`
+ 
+---
+![2025-10-30-22-46-37](../images/2025-10-30-22-46-37.png)
+---
+ 
+Chèn mã `php` vào trong nội dung của file ảnh
+
+---
+![2025-10-30-22-47-13](../images/2025-10-30-22-47-13.png)
+---
+ 
+Truy cập đến file ảnh và thấy được nội dung của file `/etc/passwd`
+ 
+---
+![2025-10-30-22-47-54](../images/2025-10-30-22-47-54.png)
+---
+ 
+Thay đổi payload và đọc nội dung của file `/home/carlos/secret`
+ 
+---
+![2025-10-30-22-48-23](../images/2025-10-30-22-48-23.png)
