@@ -236,3 +236,34 @@ Sửa request để xóa `carlos`
 ---
 ![2025-11-04-22-50-55](../images/2025-11-04-22-50-55.png)
 
+## LAB 5: Blind SSRF with out-of-band detection
+
+__SSRF mù — phát hiện bằng cơ chế out-of-band__
+
+![2025-11-05-10-19-16](../images/2025-11-05-10-19-16.png)
+---
+ 
+>>Trang này dùng phần mềm phân tích (analytics) — khi một trang sản phẩm được tải, phần mềm sẽ fetch URL được ghi trong header Referer.\
+>>Để giải lab, lợi dụng chức năng này để khiến một yêu cầu HTTP được gửi tới public Burp Collaborator server.
+ 
+---
+![2025-11-05-10-26-06](../images/2025-11-05-10-26-06.png)
+---
+ 
+Lấy một request khi xem sản phẩm\
+Trong đó có `Referer`
+ 
+---
+![2025-11-05-10-26-40](../images/2025-11-05-10-26-40.png)
+---
+ 
+Thay bằng URL của `Burp Collaborator`
+ 
+---
+![2025-11-05-10-26-57](../images/2025-11-05-10-26-57.png)
+---
+ 
+Khi sang `Burp Collaborator` thấy có request gửi đến
+ 
+---
+![2025-11-05-10-27-22](../images/2025-11-05-10-27-22.png)
