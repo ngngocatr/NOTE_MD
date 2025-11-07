@@ -413,3 +413,402 @@ Giao diện người dùng hiển thị chuỗi phiên bản `Oracle` ngay trong
 Banner “Solved” xuất hiện, lab hoàn thành với payload `Tech gifts' UNION select banner, NULL from v$version--`
 
 ---
+
+## LAB 8: SQL injection attack, querying the database type and version on MySQL and Microsoft
+
+__Tấn công SQL injection, truy vấn loại và phiên bản cơ sở dữ liệu trên MySQL và Microsoft SQL Server__
+
+![2025-11-07-14-34-45](../images/2025-11-07-14-34-45.png)
+---
+ 
+Lab mục tiêu: lợi dụng `SQLi` để hiển thị chuỗi phiên bản DB (`MySQL/MSSQL`).
+ 
+---
+![2025-11-07-14-36-49](../images/2025-11-07-14-36-49.png)
+---
+ 
+Request hợp lệ `category=Pets` trả `200 OK`, dùng làm baseline
+ 
+---
+![2025-11-07-14-37-10](../images/2025-11-07-14-37-10.png)
+---
+ 
+Thêm dấu `'` gây `500 Internal Server Error`, xác nhận `SQLi`.
+ 
+---
+![2025-11-07-14-37-39](../images/2025-11-07-14-37-39.png)
+---
+ 
+Payload `Pets'--` chữa lỗi và đưa phản hồi về `200`, cho phép thử `UNION`
+ 
+---
+![2025-11-07-14-38-46](../images/2025-11-07-14-38-46.png)
+
+![2025-11-07-14-39-10](../images/2025-11-07-14-39-10.png)
+---
+ 
+Intruder chạy `UNION SELECT NULL...` xác định truy vấn gốc có `2` cột (chỉ `NULL, NULL` trả `200`)
+ 
+---
+![2025-11-07-14-39-45](../images/2025-11-07-14-39-45.png)
+---
+ 
+Payload `UNION SELECT 'a', NULL--` thành công, chứng minh cột `1` nhận chuỗi.
+ 
+---
+![2025-11-07-14-41-12](../images/2025-11-07-14-41-12.png)
+---
+ 
+Thay `'a'` bằng hàm DB `@@version` (`MySQL/MSSQL`) và để `NULL` ở cột thứ hai; phản hồi vẫn `200`
+ 
+---
+![2025-11-07-14-41-46](../images/2025-11-07-14-41-46.png)
+
+ 
+Trên giao diện, chuỗi phiên bản `8.0.42-0ubuntu0.20.04.1` xuất hiện trong danh sách sản phẩm—mục tiêu lab đạt được.
+ 
+---
+![2025-11-07-14-41-59](../images/2025-11-07-14-41-59.png)
+---
+ 
+Banner `“Solved”` xác nhận lab hoàn thành với payload `Pets' UNION SELECT @@version, NULL--`.
+ 
+---
+## LAB 9: SQL injection attack, listing the database contents on non-Oracle databases
+
+__Tấn công SQL injection, liệt kê nội dung cơ sở dữ liệu trên các DB không phải Oracle__
+
+![2025-11-07-14-52-16](../images/2025-11-07-14-52-16.png)
+
+---
+ 
+Lab yêu cầu liệt kê bảng và cột để lấy thông tin đăng nhập rồi dùng để log in `administrator`.
+ 
+---
+![2025-11-07-14-53-13](../images/2025-11-07-14-53-13.png)
+
+---
+ 
+Request hợp lệ `category=Tech+gifts` trả `200`, tạo baseline.
+ 
+---
+![2025-11-07-14-53-31](../images/2025-11-07-14-53-31.png)
+
+---
+
+Thêm `'` vào tham số → `500 Internal Server Error`, chứng minh `SQLi`.
+
+---
+![2025-11-07-14-53-48](../images/2025-11-07-14-53-48.png)
+
+---
+
+Payload `Tech+gifts'--` bình thường lại truy vấn (`200`), sẵn sàng `UNION`
+
+---
+![2025-11-07-14-54-13](../images/2025-11-07-14-54-13.png)
+
+---
+ 
+`UNION SELECT NULL, NULL--` thành công → truy vấn gốc có `2` cột.
+ 
+---
+![2025-11-07-14-54-32](../images/2025-11-07-14-54-32.png)
+
+---
+ 
+Thay NULL đầu bằng `'A'` nhận chuỗi ở cột 1, cột 2 giữ `NULL`.
+ 
+---
+![2025-11-07-14-56-59](../images/2025-11-07-14-56-59.png)
+
+---
+ 
+Payload `UNION SELECT version(), NULL--` trả về banner `“PostgreSQL 12.22...”`, xác nhận DB là `Postgres`.
+ 
+---
+
+![2025-11-07-15-06-18](../images/2025-11-07-15-06-18.png)
+
+---
+ 
+
+ 
+---
+![2025-11-07-15-06-46](../images/2025-11-07-15-06-46.png)
+---
+ 
+Dùng `UNION SELECT table_name, table_schema FROM information_schema.columns--` để lọc và phát hiện bảng người dùng `users_owmglg`.
+ 
+---
+
+![2025-11-07-15-12-09](../images/2025-11-07-15-12-09.png)
+---
+ 
+Tiếp tục truy vấn `information_schema.columns` để lấy tên cột, cho thấy có cột `username_vjwgvd` và `password_ftkuwy`
+ 
+---
+![2025-11-07-15-11-47](../images/2025-11-07-15-11-47.png)
+
+![2025-11-07-15-12-36](../images/2025-11-07-15-12-36.png)
+![2025-11-07-15-14-42](../images/2025-11-07-15-14-42.png)
+---
+
+Payload `UNION SELECT username_vjwgvd, password_ftkuwy FROM users_owmglg` trả về dữ liệu thực tế; trang render hiển thị từng cặp `username/password`.
+
+---
+![2025-11-07-15-15-16](../images/2025-11-07-15-15-16.png)
+---
+ 
+Kết quả bao gồm `administrator / 7dqmik6ldxdj88ers6e3`, dùng để đăng nhập.
+ 
+---
+![2025-11-07-15-15-54](../images/2025-11-07-15-15-54.png)
+---
+ 
+Sau khi đăng nhập, trang `“My Account”` xác nhận đang ở tài khoản `administrator` và lab được đánh dấu __solved__.
+ 
+---
+
+## LAB 10: SQL injection attack, listing the database contents on Oracle databases
+
+__Tấn công SQL injection, liệt kê nội dung cơ sở dữ liệu trên các DB Oracle__
+
+![2025-11-07-15-34-57](../images/2025-11-07-15-34-57.png)
+---
+ 
+Lab mô tả mục tiêu: thông qua `SQLi Oracle` tìm bảng chứa thông tin đăng nhập và `login` với `administrator`
+ 
+---
+![2025-11-07-15-34-37](../images/2025-11-07-15-34-37.png)
+---
+ 
+Request chuẩn `category=Gifts` phản hồi `500` vì chưa xử lý payload, chứng tỏ tham số nhạy cảm.
+ 
+---
+![2025-11-07-15-35-18](../images/2025-11-07-15-35-18.png)
+---
+ 
+Thêm `'--` để comment phần còn lại, trả `200` và ổn định truy vấn, sẵn sàng `UNION`.
+ 
+---
+![2025-11-07-15-43-08](../images/2025-11-07-15-43-08.png)
+![2025-11-07-15-43-35](../images/2025-11-07-15-43-35.png)
+---
+ 
+Intruder thử `UNION SELECT $NULLS FROM dual--` và phát hiện chỉ khi có `2` giá trị `NULL` mới trả `200`, nên truy vấn gốc có `2` cột.
+ 
+---
+![2025-11-07-15-44-16](../images/2025-11-07-15-44-16.png)
+---
+ 
+Payload `UNION SELECT 'a', NULL FROM dual--` thành công, xác định cột 1 nhận chuỗi, cột 2 để rỗng.
+ 
+---
+![2025-11-07-15-57-52](../images/2025-11-07-15-57-52.png)
+
+![2025-11-07-15-58-12](../images/2025-11-07-15-58-12.png)
+---
+ 
+Dùng `all_tables` để lấy danh sách bảng; phản hồi liệt kê tên bảng và tìm thấy bảng mục tiêu `USERS_SHRPGH`.
+ 
+---
+![2025-11-07-16-06-06](../images/2025-11-07-16-06-06.png)
+![2025-11-07-16-06-41](../images/2025-11-07-16-06-41.png)
+---
+ 
+Query all_tab_columns với bảng vừa tìm, thu được cột `USERNAME_ELXDSO` và `PASSWORD_WRWDUL`.
+ 
+---
+![2025-11-07-16-09-26](../images/2025-11-07-16-09-26.png)
+---
+ 
+`UNION SELECT USERNAME_ELXDSO, PASSWORD_WRWDUL FROM USERS_SHRPGH--` trả về toàn bộ tài khoản; trang hiển thị cả `administrator`.
+ 
+---
+![2025-11-07-16-10-13](../images/2025-11-07-16-10-13.png)
+---
+ 
+Trích được cặp `administrator / wnb0hmqj5iaoh30y3yka`.
+ 
+---
+![2025-11-07-16-10-46](../images/2025-11-07-16-10-46.png)
+---
+ 
+Đăng nhập bằng thông tin trên, trang `“My Account”` hiển thị `username administrator` và lab được đánh dấu __solved__
+ 
+---
+
+## LAB 11: Blind SQL injection with conditional responses
+
+__SQL injection mù với phản hồi có điều kiện__
+
+![2025-11-07-16-22-19](../images/2025-11-07-16-22-19.png)
+---
+ 
+Lab mô tả lỗ hổng Blind SQLi; phải suy luận mật khẩu `administrator` qua cookie `TrackingId` dựa trên thông báo _“Welcome back!”_.
+ 
+---
+![2025-11-07-16-26-29](../images/2025-11-07-16-26-29.png)
+
+![2025-11-07-16-26-47](../images/2025-11-07-16-26-47.png)
+![2025-11-07-16-27-06](../images/2025-11-07-16-27-06.png)
+---
+ 
+Gửi request bình thường `category=Gifts` với cookie theo trình duyệt;
+ 
+---
+![2025-11-07-16-28-09](../images/2025-11-07-16-28-09.png)
+---
+ 
+Khi giữ `TrackingId` mặc định, trang hiển thị _“Welcome back!”_ → cookie hợp lệ đang truy xuất có dữ liệu.
+ 
+---
+![2025-11-07-16-28-27](../images/2025-11-07-16-28-27.png)
+---
+ 
+Thêm dấu `'` vào `TrackingId` làm mất thông báo, xác nhận điểm `SQLi`.
+ 
+---
+![2025-11-07-16-28-46](../images/2025-11-07-16-28-46.png)
+---
+ 
+Dùng payload `TrackingId=...'+--` để đóng chuỗi và comment phần còn lại; _“Welcome back!”_ xuất hiện lại → đã kiểm soát cú pháp truy vấn dựa trên cookie.
+ 
+---
+![2025-11-07-16-31-45](../images/2025-11-07-16-31-45.png)
+---
+ 
+Intruder với payload `UNION SELECT NULL` vẫn giữ _Welcome=1_, nên truy vấn gốc trả 1 cột; khi thêm điều kiện sai, _Welcome=0_, dùng để phân biệt `true/false`.
+ 
+---
+![2025-11-07-16-32-50](../images/2025-11-07-16-32-50.png)
+---
+ 
+Payload `TrackingId=...'+UNION SELECT version()--` --> Lab dùng `PostgreSQL`
+ 
+---
+![2025-11-07-16-49-10](../images/2025-11-07-16-49-10.png)
+![2025-11-07-16-49-33](../images/2025-11-07-16-49-33.png)
+---
+ 
+Intruder `' AND LENGTH((SELECT password FROM users WHERE username='administrator'))=n` để tìm độ dài; _Welcome=1_ khi `n=20` nên mật khẩu dài `20` ký tự.
+ 
+---
+![2025-11-07-16-58-35](../images/2025-11-07-16-58-35.png)
+---
+ 
+Tiếp tục brute force từng ký tự với `SUBSTRING(..., pos, 1)='x'`; bảng đỏ thể hiện các request trả _Welcome=1_ tương ứng ký tự đúng.
+ 
+---
+![2025-11-07-17-00-34](../images/2025-11-07-17-00-34.png)
+---
+ 
+Sau khi dựng đủ chuỗi và đăng nhập, trang __“My Account”__ xác nhận username `administrator`, lab đã __solved__.
+ 
+---
+
+## LAB 12: Blind SQL injection with conditional errors
+
+__SQL injection mù với lỗi có điều kiện__
+
+![2025-11-07-17-16-09](../images/2025-11-07-17-16-09.png)
+---
+ 
+Lab yêu cầu lợi dụng Blind `SQLi` dựa trên lỗi (_conditional errors_) để tìm mật khẩu `administrator`.
+ 
+---
+![2025-11-07-17-15-54](../images/2025-11-07-17-15-54.png)
+---
+ 
+Request dùng `'` với cookie `TrackingId` ban đầu gây lỗi `500` khi truy vấn hỏng, xác nhận cookie được đưa vào `SQL`.
+ 
+---
+![2025-11-07-17-16-36](../images/2025-11-07-17-16-36.png)
+---
+ 
+Thêm payload `'--` vào `TrackingId` để đóng chuỗi và comment phần còn lại; phản hồi chuyển sang `200 OK`, chứng tỏ đã kiểm soát truy vấn.
+ 
+---
+![2025-11-07-17-17-17](../images/2025-11-07-17-17-17.png)
+---
+ 
+Thử `UNION SELECT NULL FROM dual` qua `TrackingId`, phản hồi vẫn `200`, đảm bảo có thể chèn câu lệnh.
+ 
+---
+![2025-11-07-21-30-59](../images/2025-11-07-21-30-59.png)
+![2025-11-07-21-31-18](../images/2025-11-07-21-31-18.png)
+---
+ 
+Sử dụng _Intruder_ với payload `' AND (SELECT CASE WHEN ... THEN TO_CHAR(1/0) ELSE 'a' END FROM dual)`; nếu điều kiện đúng, câu `TO_CHAR(1/0)` tạo lỗi `500`. Chạy _brute force_ độ dài `password` và thấy `payload =20` gây lỗi → mật khẩu dài `20` ký tự.
+ 
+---
+![2025-11-07-21-35-42](../images/2025-11-07-21-35-42.png)
+
+![2025-11-07-21-35-52](../images/2025-11-07-21-35-52.png)
+---
+ 
+Sử dụng tấn công `cluster bomb` để _brute force_ từng ký tự bằng `SUBSTR(password, pos, 1)` kết hợp `CASE WHEN ... THEN TO_CHAR(1/0)`, quan sát các request lỗi (màu cyan) để xác định chữ cái đúng.
+ 
+---
+![2025-11-07-21-41-33](../images/2025-11-07-21-41-33.png)
+---
+ 
+Sau khi thu được toàn bộ mật khẩu và đăng nhập, trang _“My Account”_ xác nhận username `administrator`, lab `solved`.
+ 
+---
+
+## LAB 13: Visible error-based SQL injection
+
+__SQL injection dựa trên lỗi hiển thị__
+
+![2025-11-07-22-02-42](../images/2025-11-07-22-02-42.png)
+---
+ 
+Lab __“Visible error-based SQL injection”__ – mục tiêu là khai thác cookie `TrackingId` để rò rỉ mật khẩu `administrator`.
+ 
+---
+![2025-11-07-22-06-29](../images/2025-11-07-22-06-29.png)
+---
+ 
+Khi thêm `'` vào `TrackingId`, ứng dụng trả lỗi __“Unterminated string literal… Expected char”__, chứng tỏ cookie được đưa thẳng vào câu SQL và lỗi hiển thị rõ nội dung truy vấn.
+ 
+---
+![2025-11-07-22-07-07](../images/2025-11-07-22-07-07.png)
+---
+ 
+`TrackingId=...'--` đóng chuỗi và comment phần còn lại; phản hồi trở về `200 OK`, cho phép thử tiếp.
+ 
+---
+![2025-11-07-22-30-02](../images/2025-11-07-22-30-02.png)
+---
+ 
+Thử `' AND CAST((SELECT 1) AS int)` khiến máy chủ báo lỗi __“argument of AND must be type boolean”__ → xác nhận ta có thể chèn mệnh đề `AND`, nhưng phải trả về _boolean_. Đây là dấu hiệu để dùng __CAST/TYPE__ nhằm tạo lỗi có điều kiện.
+ 
+---
+![2025-11-07-22-30-20](../images/2025-11-07-22-30-20.png)
+
+![2025-11-07-22-31-01](../images/2025-11-07-22-31-01.png)
+---
+ 
+Đổi sang `' AND 1=CAST((SELECT 'test') AS int)` làm ứng dụng báo lỗi _“invalid input syntax for type integer: 'test'”_. Ta lợi dụng thông báo này để rò rỉ dữ liệu; mọi thứ được chèn vào `SELECT '...` sẽ lộ trong thông báo lỗi
+ 
+---
+![2025-11-07-22-33-37](../images/2025-11-07-22-33-37.png)
+---
+ 
+Thử `CAST((SELECT password FROM users LIMIT 1) AS int)`, nhưng gặp lỗi _“Unterminated string literal”_ do độ dài câu truy vấn bị giới hạn 
+ 
+---
+![2025-11-07-22-34-43](../images/2025-11-07-22-34-43.png)
+---
+ 
+Để vượt giới hạn, xóa giá trị `TrackingId` ban đầu (đặt rỗng) rồi chèn payload ngắn hơn: `TrackingId=' AND 1=CAST((SELECT password FROM users LIMIT 1) AS int)--`. Lỗi hiển thị chính xác chuỗi mật khẩu trong thông báo __“invalid input syntax for type integer: 'z75anh0ybng4v5woecq1'”__.
+ 
+---
+![2025-11-07-22-35-22](../images/2025-11-07-22-35-22.png)
+---
+ 
+Dùng mật khẩu thu được để đăng nhập, trang __“My Account”__ xác nhận username `administrator`, lab hoàn thành.
+ 
+---
