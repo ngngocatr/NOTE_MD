@@ -786,7 +786,13 @@ Khi thêm `'` vào `TrackingId`, ứng dụng trả lỗi __“Unterminated stri
 Thử `' AND CAST((SELECT 1) AS int)` khiến máy chủ báo lỗi __“argument of AND must be type boolean”__ → xác nhận ta có thể chèn mệnh đề `AND`, nhưng phải trả về _boolean_. Đây là dấu hiệu để dùng __CAST/TYPE__ nhằm tạo lỗi có điều kiện.
  
 ---
-![2025-11-07-22-30-20](../images/2025-11-07-22-30-20.png)
+
+![2025-11-07-22-30-26](../images/2025-11-07-22-30-26.png)
+---
+ 
+Điều chỉnh câu `AND 1=CAST((SELECT 1) AS int)` để trả về _true_ hợp lệ, phản hồi `200`.
+ 
+---
 
 ![2025-11-07-22-31-01](../images/2025-11-07-22-31-01.png)
 ---
