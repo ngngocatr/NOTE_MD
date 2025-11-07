@@ -55,7 +55,7 @@ Lab yêu cầu khai thác lỗ hổng `SQL injection` trong biểu mẫu đăng 
 ![2025-11-05-20-58-11](../images/2025-11-05-20-58-11.png)
 ![2025-11-05-20-59-14](../images/2025-11-05-20-59-14.png)
 
-# LAB 3: SQL injection UNION attack, determining the number of columns returned by the query
+## LAB 3: SQL injection UNION attack, determining the number of columns returned by the query
 
 __Tấn công SQL injection UNION, xác định số cột được truy vấn trả về__
 
