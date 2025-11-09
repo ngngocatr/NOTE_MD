@@ -818,3 +818,27 @@ Thử `CAST((SELECT password FROM users LIMIT 1) AS int)`, nhưng gặp lỗi _�
 Dùng mật khẩu thu được để đăng nhập, trang __“My Account”__ xác nhận username `administrator`, lab hoàn thành.
  
 ---
+
+## LAB 14: Blind SQL injection with time delays
+
+__Blind SQL injection với độ trễ thời gian__
+
+![2025-11-08-15-00-26](../images/2025-11-08-15-00-26.png)
+![2025-11-08-15-37-51](../images/2025-11-08-15-37-51.png)
+![2025-11-08-15-38-02](../images/2025-11-08-15-38-02.png)
+
+## LAB 15: Blind SQL injection with time delays and information retrieval
+
+__Blind SQL injection với độ trễ thời gian và truy xuất thông tin__
+
+![2025-11-08-15-41-07](../images/2025-11-08-15-41-07.png)
+![2025-11-08-15-43-18](../images/2025-11-08-15-43-18.png)
+![2025-11-08-15-49-24](../images/2025-11-08-15-49-24.png)
+![2025-11-08-15-49-43](../images/2025-11-08-15-49-43.png)
+![2025-11-08-15-57-28](../images/2025-11-08-15-57-28.png)
+![2025-11-08-15-57-48](../images/2025-11-08-15-57-48.png)
+![2025-11-08-16-00-01](../images/2025-11-08-16-00-01.png)
+![2025-11-08-16-07-21](../images/2025-11-08-16-07-21.png) 
+![2025-11-08-16-11-29](../images/2025-11-08-16-11-29.png)
+
+## 
