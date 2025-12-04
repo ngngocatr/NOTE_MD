@@ -201,4 +201,4 @@ Truy cập đến file ảnh và thấy được nội dung của file `/etc/pas
 Thay đổi payload và đọc nội dung của file `/home/carlos/secret`
  
 ---
-![2025-10-30-22-48-23](../images/2025-10-30-22-48-23.png)
+![2025-10-30-22-48-23](../images/2025-10-30-22-48-23.png) 
